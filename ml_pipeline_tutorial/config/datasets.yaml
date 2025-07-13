@@ -1,0 +1,5 @@
+# dataset registration
+datasets:
+  iris:
+    # relative to data directory
+    path: "iris.data"

@@ -1,0 +1,39 @@
+project:
+  name: iris_classification
+
+  dataset: iris
+
+  model:
+    name: iris_classifier
+    params:
+      penalty: l2
+
+  features:
+    - sepal_length
+    - sepal_width
+    - petal_length
+    - petal_width
+
+  target: species
+
+  training:
+    test_split: 0.3
+
+  tasks:
+    load_data:
+      next:
+        - preprocess_data
+    preprocess_data:
+      next:
+        - feature_engineer_data
+    feature_engineer_data:
+      next:
+        - train_model
+    train_model:
+      next:
+        - evaluate_model
+    evaluate_model:
+      next:
+        - create_plots
+    create_plots:
+      next: []
