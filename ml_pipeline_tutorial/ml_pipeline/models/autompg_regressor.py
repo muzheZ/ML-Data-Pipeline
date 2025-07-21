@@ -1,10 +1,7 @@
-import json
-
 from typing import TYPE_CHECKING, Dict, Tuple
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 from joblib import load, dump
 
 if TYPE_CHECKING:
@@ -18,7 +15,7 @@ from ml_pipeline.mixins.training_mixin import TrainingMixin
 from ml_pipeline.model import Model
 
 
-class IrisClassifier(TrainingMixin, Model, ReportingMixin):
+class AutoMPGRegressor(TrainingMixin, Model, ReportingMixin):
     def __init__(
         self,
         model_params: "DictConfig",
@@ -26,7 +23,7 @@ class IrisClassifier(TrainingMixin, Model, ReportingMixin):
         artifact_dir: str,
         logger: "logging.Logger" = None,
     ) -> None:
-        self.model = LogisticRegression(**model_params)
+        self.model = LinearRegression(**model_params)
         self.training_params = training_params
         self.artifact_dir = artifact_dir
         self.logger = logger
@@ -37,44 +34,24 @@ class IrisClassifier(TrainingMixin, Model, ReportingMixin):
     def _encode_train_data(
         self, X: "pd.DataFrame" = None, y: "pd.Series" = None
     ) -> Tuple["pd.DataFrame", "pd.Series"]:
-        # we are not encoding X because it is not needed for our dataset
-
-        le = LabelEncoder()
-        y = le.fit_transform(y)
-
-        # build the encoding dictionary, converting numpy.int64 values to
-        # python ints
-        self.encodings = dict(
-            zip(le.classes_, [int(i) for i in le.transform(le.classes_)])
-        )
-        self.logger.debug(self.encodings)
-
-        filename = f"{self.artifact_dir}/encodings.json"
-        with open(filename, "w") as f:
-            json.dump(self.encodings, f)
-        self.logger.debug(f"Saved {filename}.")
-
+        # in this example, we don't do any encoding
         return X, y
 
     def _encode_test_data(
         self, X: "pd.DataFrame" = None, y: "pd.Series" = None
     ) -> Tuple["pd.DataFrame", "pd.Series"]:
-        y = y.map(self.encodings)
+        # in this example, we don't do any encoding
         return X, y
 
     def _compute_metrics(
         self, y_true: "pd.Series", y_pred: "pd.Series"
     ) -> Dict:
         self.metrics = {}
-        self.metrics["accuracy"] = accuracy_score(y_true, y_pred)
-        self.metrics["cm"] = confusion_matrix(y_true, y_pred)
+        self.metrics["mean_squared_error"] = mean_squared_error(y_true, y_pred)
+        self.metrics["r2_score"] = r2_score(y_true, y_pred)
 
     def create_report(self) -> None:
         self.save_metrics()
-        self.plot_confusion_matrix(
-            xticklabels=self.encodings.keys(),
-            yticklabels=self.encodings.keys(),
-        )
 
     def save(self) -> None:
         filename = f"{self.artifact_dir}/model.joblib"

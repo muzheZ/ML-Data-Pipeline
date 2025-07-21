@@ -1,5 +1,7 @@
 # dataset registration
+# paths are relative to 'data' directory
 datasets:
   iris:
-    # relative to data directory
     path: "iris.data"
+  autompg:
+    path: "auto-mpg.data"

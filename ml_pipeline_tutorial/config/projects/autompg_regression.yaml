@@ -1,20 +1,23 @@
 project:
-  name: iris_classification
+  name: autompg_regression
 
-  dataset: iris
+  dataset: autompg
 
   model:
-    name: iris_classifier
+    name: autompg_regressor
     params:
-      penalty: l2
+      fit_intercept: true
 
   features:
-    - sepal_length
-    - sepal_width
-    - petal_length
-    - petal_width
+    - num_cylinders
+    - displacement
+    - horsepower
+    - weight
+    - acceleration
+    - year
+    - origin
 
-  target: species
+  target: mpg
 
   training:
     test_split: 0.3
@@ -24,9 +27,6 @@ project:
       next:
         - preprocess_data
     preprocess_data:
-      next:
-        - feature_engineer_data
-    feature_engineer_data:
       next:
         - train_model
     train_model:
